@@ -7,11 +7,14 @@ function App () {
   const [isReady, setIsReady] = useState(false)
   const [messages, setMessages] = useState([])
   const [currentMessage, setCurrentMessage] = useState('')
+  const [name, setName] = useState('')
+  const [hasName, setHasName] = useState(false)
 
   useEffect(() => {
     async function fetchData () {
       firestoreCollections.messagesRef
         .where('threadName', '==', threadName)
+        .orderBy('createdAt', 'asc')
         .onSnapshot(async userTasksQuery => {
           setIsReady(true)
           setIsLoading(false)
@@ -24,13 +27,55 @@ function App () {
     }
   }, [isLoading, threadName])
 
+  const submitMessage = () => {
+    firestoreCollections.messagesRef.add({
+      threadName,
+      text: currentMessage,
+      createdAt: Date.now(),
+      chatName: name
+    })
+    setCurrentMessage('')
+  }
+
   return (
     <div style={{ width: '400px', margin: '0 auto' }}>
-      {!isReady && !isLoading && (
+      {!hasName && (
+        <div>
+          <div>Please enter your chat name</div>
+          <div>
+            <input
+              type='text'
+              onKeyUp={e => {
+                if (e.keyCode === 13) {
+                  setHasName(true)
+                }
+              }}
+              onChange={e => setName(e.target.value)}
+            />
+            <button
+              disabled={!name}
+              onClick={() => {
+                setHasName(true)
+              }}
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      )}
+      {hasName && !isReady && !isLoading && (
         <div>
           <div>Please enter in your secret room name</div>
           <div>
-            <input type='text' onChange={e => setThreadName(e.target.value)} />
+            <input
+              type='text'
+              onKeyUp={e => {
+                if (e.keyCode === 13) {
+                  setIsLoading(true)
+                }
+              }}
+              onChange={e => setThreadName(e.target.value)}
+            />
             <button
               disabled={!threadName}
               onClick={() => {
@@ -47,29 +92,29 @@ function App () {
       {isReady && (
         <div>
           <div style={{ marginBottom: '10px' }}>Messages:</div>
-          {messages.map((message, idx) => (
-            <div style={{ borderBottom: '1px solid #CCC' }} key={idx}>{message.text}</div>
+          {messages.map(message => (
+            <div
+              style={{ borderBottom: '1px solid #CCC' }}
+              key={message.createdAt}
+            >
+              {message.chatName}: {message.text}
+            </div>
           ))}
           <div style={{ marginTop: '20px' }}>
             <input
               type='text'
+              value={currentMessage}
+              onKeyUp={e => {
+                if (e.keyCode === 13) {
+                  submitMessage()
+                }
+              }}
               onChange={e => {
                 setCurrentMessage(e.target.value)
               }}
               placeholder='Enter message...'
             />{' '}
-            <button
-              onClick={() => {
-                firestoreCollections.messagesRef.add({
-                  threadName,
-                  text: currentMessage,
-                  createdAt: Date.now()
-                })
-                setCurrentMessage('')
-              }}
-            >
-              Send
-            </button>
+            <button onClick={submitMessage}>Send</button>
           </div>
         </div>
       )}
