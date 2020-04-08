@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { firestoreCollections } from './utils/firebase'
+import randomColor from 'randomcolor'
 
 function App () {
   const [threadName, setThreadName] = useState('')
@@ -36,6 +37,13 @@ function App () {
     })
     setCurrentMessage('')
   }
+
+  const nameToColor = {}
+
+  messages.forEach(((message) => {
+    nameToColor[message.chatName] = randomColor()
+  }))
+
 
   return (
     <div style={{ width: '400px', margin: '0 auto' }}>
@@ -96,7 +104,7 @@ function App () {
           <div style={{ marginBottom: '10px' }}>Messages:</div>
           {messages.map(message => (
             <div
-              style={{ borderBottom: '1px solid #CCC' }}
+              style={{ borderBottom: '1px solid #CCC', color: nameToColor[message.chatName] }}
               key={message.createdAt}
             >
               {message.chatName}: {message.text}
