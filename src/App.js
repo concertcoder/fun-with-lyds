@@ -44,6 +44,7 @@ function App () {
           <div>Please enter your chat name</div>
           <div>
             <input
+              autoFocus
               type='text'
               onKeyUp={e => {
                 if (e.keyCode === 13) {
@@ -68,6 +69,7 @@ function App () {
           <div>Please enter in your secret room name</div>
           <div>
             <input
+              autoFocus
               type='text'
               onKeyUp={e => {
                 if (e.keyCode === 13) {
@@ -102,6 +104,7 @@ function App () {
           ))}
           <div style={{ marginTop: '20px' }}>
             <input
+              autoFocus
               type='text'
               value={currentMessage}
               onKeyUp={e => {
